@@ -637,9 +637,10 @@ public class DependencyParser {
       }
 
       int nWords = lines.size();
-      String[] splits = lines.get(0).split("\\s+");
+      String[] splits = lines.get(0).split(" ");
 
       int dim = splits.length - 1;
+
       embeddings = new double[nWords][dim];
       System.err.println("Embedding File " + embedFile + ": #Words = " + nWords + ", dim = " + dim);
 
@@ -647,7 +648,7 @@ public class DependencyParser {
           throw new IllegalArgumentException("The dimension of embedding file does not match config.embeddingSize");
 
       for (int i = 0; i < lines.size(); ++i) {
-        splits = lines.get(i).split("\\s+");
+        splits = lines.get(i).split(" ");
         embedID.put(splits[0], i);
         for (int j = 0; j < dim; ++j)
           embeddings[i][j] = Double.parseDouble(splits[j + 1]);
@@ -706,7 +707,7 @@ public class DependencyParser {
     double bestUAS = 0;
 
     for (int iter = 0; iter < config.maxIter; ++iter) {
-      System.err.println("##### Iteration " + iter);
+      System.err.println("##### Iteration " + iter  +" out of "+config.maxIter);
 
       Classifier.Cost cost = classifier.computeCostFunction(config.batchSize, config.regParameter, config.dropProb);
       System.err.println("Cost = " + cost.getCost() + ", Correct(%) = " + cost.getPercentCorrect());
@@ -733,6 +734,9 @@ public class DependencyParser {
           writeModelFile(modelFile);
         }
       }
+
+      if(bestUAS == 0)
+        writeModelFile(modelFile);
 
       // Clear gradients
       if (config.clearGradientsPerIter > 0 && iter % config.clearGradientsPerIter == 0) {
